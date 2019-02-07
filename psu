@@ -372,6 +372,21 @@ deploy() {
         @json.tmp)
       check_for_errors $? "$create"
       echo_debug "Create action response -> $(echo $create | jq -C .)"
+      # Create resource control for stack
+      echo_verbose "Creating resource control for stack $PORTAINER_STACK_NAME..."
+      local create
+      create=$(http \
+        --check-status \
+        --ignore-stdin \
+        --verify=$HTTPIE_VERIFY_SSL \
+        --timeout=300 \
+        "$PORTAINER_URL/api/resource_controls" \
+        "Authorization: Bearer $AUTH_TOKEN" \
+        Type=stack \
+        ResourceID=$PORTAINER_STACK_NAME \
+        Public=true)
+      check_for_errors $? "$create"
+      echo_debug "Create action response -> $(echo $create | jq -C .)"
     fi
 
     rm json.tmp
